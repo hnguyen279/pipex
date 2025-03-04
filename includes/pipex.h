@@ -25,7 +25,7 @@ void	free_split(char **tab);
 void	close_fds(int fd1, int fd2, int fd3);
 int		open_file(char *file, int check_stdin_stdout);
 void	exec_cmd(char *cmd, char **env);
-void	child_process(char **argv, char **env, int *pile_fd);
-void	parent_process(char **argv, char **env, int *pile_fd);
+void	first_child_process(char **argv, char **env, int *pipe_fd);
+void	second_child_process(char **argv, char **env, int *pipe_fd);
 
 #endif

@@ -15,7 +15,7 @@
 void	check_exit_error(char *msg)
 {
 	perror(msg);
-	exit(EXIT_FAILURE);
+	exit(1);
 }
 
 void	display_error(char *prefix, char *msg)
@@ -58,8 +58,8 @@ int	open_file(char *file, int check_stdin_stdout)
 	if (check_stdin_stdout == 0)
 		fd = open(file, O_RDONLY);
 	if (check_stdin_stdout == 1)
-		fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0644);
+		fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0777);
 	if (fd == -1)
-		check_exit_error("error");
+		check_exit_error("open failed");
 	return (fd);
 }

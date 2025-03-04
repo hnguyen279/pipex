@@ -61,24 +61,29 @@ static char	*build_cmd_path(char *fist_cmd, char *f_path)
 	return (NULL);
 }
 
-static char	*get_path(char *fist_cmd, char **env)
+static char *get_path(char *first_cmd, char **env)
 {
 	char	*f_path;
-	char	*cmd_path;
+    char	*cmd_path;
 
-	f_path = find_path(env);
-	if (!f_path)
-	{
-		display_error("error", "PATH environment variable not valid");
-		return (NULL);
-	}
-	cmd_path = build_cmd_path(fist_cmd, f_path);
-	if (!cmd_path)
-	{
-		display_error(fist_cmd, "command not found");
-		return (NULL);
-	}
-	return (cmd_path);
+    if (!first_cmd || first_cmd[0] == '\0')
+    {
+        display_error("Error", "command not found");
+        return (NULL);
+    }
+    f_path = find_path(env);
+    if (!f_path)
+    {
+        display_error("Error", "PATH environment variable not valid");
+        return (NULL);
+    }
+    cmd_path = build_cmd_path(first_cmd, f_path);
+    if (!cmd_path)
+    {
+        display_error(first_cmd, "command not found");
+        return (NULL);
+    }
+    return (cmd_path);
 }
 
 void	exec_cmd(char *cmd, char **env)
@@ -86,7 +91,14 @@ void	exec_cmd(char *cmd, char **env)
 	char    **split_cmd;
 	char    *cmd_path;
 
+	if (!cmd || cmd[0] == '\0')
+    {
+        display_error("Error", "command not found");
+        exit(127);
+    }
 	split_cmd = ft_split(cmd, ' ');
+	if (!split_cmd)
+		exit(1); 
 	cmd_path = get_path(split_cmd[0], env);
 	if (!cmd_path)
 	{
