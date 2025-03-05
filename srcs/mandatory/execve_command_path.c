@@ -33,7 +33,7 @@ static char	*find_path(char **env)
 	return (NULL);
 }
 
-static char	*build_cmd_path(char *fist_cmd, char *f_path)
+static char	*build_cmd_path(char *first_cmd, char *f_path)
 {
 	char	**env_path;
 	char	*one_path;
@@ -47,7 +47,7 @@ static char	*build_cmd_path(char *fist_cmd, char *f_path)
 	while (env_path[i])
 	{
 		one_path = ft_strjoin(env_path[i], "/");
-		cmd_path = ft_strjoin(one_path, fist_cmd);
+		cmd_path = ft_strjoin(one_path, first_cmd);
 		free(one_path);
 		if (access(cmd_path, F_OK | X_OK) == 0)
 		{
@@ -91,11 +91,8 @@ void	exec_cmd(char *cmd, char **env)
 	char    **split_cmd;
 	char    *cmd_path;
 
-	if (!cmd || cmd[0] == '\0')
-    {
-        display_error("Error", "command not found");
+	if (!cmd || !env)
         exit(127);
-    }
 	split_cmd = ft_split(cmd, ' ');
 	if (!split_cmd)
 		exit(1); 
