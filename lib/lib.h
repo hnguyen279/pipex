@@ -75,13 +75,13 @@ t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 t_list				*ft_lstnew(void *content);
 int					ft_lstsize(t_list *lst);
 
-int					ft_putchar(char c);
-int					ft_putstr(char *str);
-int					ft_putnbr_base(unsigned long long nbr, const char *base);
-int					ft_putptr(void *ptr);
-int					ft_putnbr(int nbr);
-int					ft_putnbr_unsigned(unsigned int nbr);
-int					ft_printf(const char *format, ...);
+int					ft_putchar(char c, int fd);
+int					ft_putstr(char *str, int fd);
+int					ft_putnbr_base(unsigned long long nbr, const char *base, int fd);
+int					ft_putptr(void *ptr, int fd);
+int					ft_putnbr(int nbr, int fd);
+int					ft_putnbr_unsigned(unsigned int nbr, int fd);
+int					ft_printf_fd(int fd, const char *format, ...);
 
 size_t				ft_strlen_gnl(char *s);
 char				*ft_strdup_gnl(char *s);

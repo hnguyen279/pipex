@@ -17,6 +17,12 @@ void	check_exit_error(char *msg)
 	perror(msg);
 	exit(1);
 }
+// void display_error(char *msg, char *detail, int exit_code)
+// {
+//     ft_printf_fd(2, "%s: %s\n", msg, detail);
+//     exit(exit_code);
+// }
+
 
 void	display_error(char *prefix, char *msg)
 {
@@ -51,7 +57,7 @@ void	close_fds(int fd1, int fd2, int fd3)
 		close(fd3);
 }
 
-int	open_file(char *file, int check_stdin_stdout)
+int	open_file(char *file, int *pipe_fd, int check_stdin_stdout)
 {
     int fd;
 
@@ -60,6 +66,9 @@ int	open_file(char *file, int check_stdin_stdout)
 	if (check_stdin_stdout == 1)
 		fd = open(file, O_CREAT | O_RDWR | O_TRUNC, 0777);
 	if (fd == -1)
+	{
+		close_fds(pipe_fd[0], pipe_fd[1], -1);
 		check_exit_error("open failed");
+	}
 	return (fd);
 }

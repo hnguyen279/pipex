@@ -16,7 +16,7 @@ void	first_child_process(char **argv, char **env, int *pipe_fd)
 {
 	int	fd_in;
 
-	fd_in = open_file(argv[1], 0);
+	fd_in = open_file(argv[1], pipe_fd, 0);
 	if (dup2(fd_in, 0) == -1)
 	{
 		close_fds(fd_in, -1, -1);
@@ -36,7 +36,7 @@ void	second_child_process(char **argv, char **env, int *pipe_fd)
 {
 	int	fd_out;
 
-	fd_out = open_file(argv[4], 1);
+	fd_out = open_file(argv[4], pipe_fd, 1);
 	if (dup2(pipe_fd[0], STDIN_FILENO) == -1)
 	{
 		close_fds(fd_out, pipe_fd[0], pipe_fd[1]);

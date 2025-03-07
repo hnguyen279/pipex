@@ -46,23 +46,64 @@ static void handle_fork_error(int fd1, int fd2, int fd3, char *msg)
     check_exit_error(msg);
 }
 
-static int wait_for_children(pid_t pid1, pid_t pid2)
+// static int wait_for_children(pid_t pid1, pid_t pid2)
+// {
+//     int status1;
+//     int status2;
+
+//     if (waitpid(pid1, &status1, 0) == -1)
+//         check_exit_error("waitpid failed for first child");
+
+//     if (waitpid(pid2, &status2, 0) == -1)
+//         check_exit_error("waitpid failed for second child");
+
+//     if (WIFEXITED(status2))
+//         return WEXITSTATUS(status2);
+//     else if (WIFSIGNALED(status2))
+//         return (128 + WTERMSIG(status2));
+
+//     return (1);
+// }
+
+// static int wait_for_children(pid_t pid2)
+// {
+//     int status;
+//     pid_t pid;
+//     int exit_code; 
+
+//     exit_code = 1; 
+//     while ((pid = wait(&status)) > 0) 
+//     {
+//         if (pid == pid2)
+//         {
+//             if (WIFEXITED(status))
+//                 exit_code = WEXITSTATUS(status);
+//             else if (WIFSIGNALED(status))
+//                 exit_code = 128 + WTERMSIG(status);
+//         }
+//     }
+
+//     return (exit_code);
+// }
+
+static int wait_for_children(pid_t pid2)
 {
-    int status1;
-    int status2;
+    int status;
+    pid_t pid;
+    int exit_code = 1; 
 
-    if (waitpid(pid1, &status1, 0) == -1)
-        check_exit_error("waitpid failed for first child");
-
-    if (waitpid(pid2, &status2, 0) == -1)
-        check_exit_error("waitpid failed for second child");
-
-    if (WIFEXITED(status2))
-        return WEXITSTATUS(status2);
-    else if (WIFSIGNALED(status2))
-        return (128 + WTERMSIG(status2));
-
-    return (1);
+    exit_code = 1; 
+    while ((pid = waitpid(-1, &status, 0)) > 0)  
+    {
+        if (pid == pid2)  
+        {
+            if (WIFEXITED(status))
+                exit_code = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+                exit_code = 128 + WTERMSIG(status);
+        }
+    }
+    return (exit_code); 
 }
 
 int main(int argc, char **argv, char **env)
@@ -89,5 +130,5 @@ int main(int argc, char **argv, char **env)
     if (pid2 == 0)
         second_child_process(argv, env, pipe_fd);
     close_fds(pipe_fd[0], pipe_fd[1], -1);
-    return (wait_for_children(pid1, pid2)); 
+    return (wait_for_children(pid2)); 
 }

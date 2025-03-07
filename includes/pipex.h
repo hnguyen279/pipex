@@ -21,9 +21,10 @@
 
 void	check_exit_error(char *msg);
 void	display_error(char *prefix, char *msg);
+//void    display_error(char *msg, char *detail, int exit_code);
 void	free_split(char **tab);
 void	close_fds(int fd1, int fd2, int fd3);
-int		open_file(char *file, int check_stdin_stdout);
+int		open_file(char *file,int *pipe_fd, int check_stdin_stdout);
 void	exec_cmd(char *cmd, char **env);
 void	first_child_process(char **argv, char **env, int *pipe_fd);
 void	second_child_process(char **argv, char **env, int *pipe_fd);

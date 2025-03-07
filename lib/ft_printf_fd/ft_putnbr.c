@@ -1,29 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putptr.c                                        :+:      :+:    :+:   */
+/*   ft_putnbr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thi-huon <thi-huon@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/07 16:40:34 by thi-huon          #+#    #+#             */
-/*   Updated: 2024/12/07 16:40:45 by thi-huon         ###   ########.fr       */
+/*   Created: 2024/12/07 16:22:27 by thi-huon          #+#    #+#             */
+/*   Updated: 2024/12/07 16:22:43 by thi-huon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../lib.h"
 
-int	ft_putptr(void *ptr)
+int	ft_putnbr(int nbr, int fd)
 {
-	int	len;
-	int	base_len;
+	char		num;
+	int			len;
+	long int	n;
+	int			recursive_len;
 
-	if (!ptr)
-		return (write(1, "(nil)", 5));
-	len = ft_putstr("0x");
-	if (len == -1)
+	n = nbr;
+	len = 0;
+	if (n < 0)
+	{
+		if (ft_putchar(('-'), fd) == -1)
+			return (-1);
+		n = -n;
+		len++;
+	}
+	if (n >= 10)
+	{
+		recursive_len = ft_putnbr(n / 10, fd);
+		if (recursive_len == -1)
+			return (-1);
+		len += recursive_len;
+	}
+	num = (n % 10) + '0';
+	if (ft_putchar(num, fd) == -1)
 		return (-1);
-	base_len = ft_putnbr_base((unsigned long long)ptr, "0123456789abcdef");
-	if (base_len == -1)
-		return (-1);
-	return (len + base_len);
+	return (len + 1);
 }

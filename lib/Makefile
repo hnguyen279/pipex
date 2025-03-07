@@ -5,7 +5,7 @@ CFLAGS := -g -Wall -Wextra -Werror
 
 LIBFT_DIR := 	./libft
 
-FT_PRINTF_DIR := ./ft_printf
+FT_PRINTF_DIR := ./ft_printf_fd
 
 GNL_DIR	:=	./get_next_line
 
@@ -59,7 +59,7 @@ FT_PRINTF_SRC	:=	$(FT_PRINTF_DIR)/ft_putchar.c \
 					$(FT_PRINTF_DIR)/ft_putptr.c \
 					$(FT_PRINTF_DIR)/ft_putnbr.c \
 					$(FT_PRINTF_DIR)/ft_putnbr_unsigned.c \
-					$(FT_PRINTF_DIR)/ft_printf.c
+					$(FT_PRINTF_DIR)/ft_printf_fd.c
 
 
 GNL_SRC	:=	$(GNL_DIR)/get_next_line.c	\

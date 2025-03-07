@@ -1,29 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putstr.c                                        :+:      :+:    :+:   */
+/*   ft_putptr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: thi-huon <thi-huon@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/07 16:21:58 by thi-huon          #+#    #+#             */
-/*   Updated: 2024/12/07 16:22:00 by thi-huon         ###   ########.fr       */
+/*   Created: 2024/12/07 16:40:34 by thi-huon          #+#    #+#             */
+/*   Updated: 2024/12/07 16:40:45 by thi-huon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../lib.h"
 
-int	ft_putstr(char *str)
+int	ft_putptr(void *ptr, int fd)
 {
 	int	len;
+	int	base_len;
 
-	len = 0;
-	if (!str)
-		return (write(1, "(null)", 6));
-	while (str[len] != '\0')
-	{
-		if (ft_putchar(str[len]) == -1)
-			return (-1);
-		len++;
-	}
-	return (len);
+	if (!ptr)
+		return (write(1, "(nil)", 5));
+	len = ft_putstr("0x", fd);
+	if (len == -1)
+		return (-1);
+	base_len = ft_putnbr_base((unsigned long long)ptr, "0123456789abcdef", fd);
+	if (base_len == -1)
+		return (-1);
+	return (len + base_len);
 }
