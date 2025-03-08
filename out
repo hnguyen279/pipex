@@ -1,0 +1,17 @@
+Makefile
+README.md
+file1
+function2.c
+includes
+infiles
+lib
+main.c
+main.o
+out
+outfiles
+output
+output.txt
+pipex
+srcs
+test
+tester_pipex.sh

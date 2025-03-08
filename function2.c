@@ -437,3 +437,47 @@ void exec_cmd(char *cmd, char **env)
 } 
 
 
+void exec_cmd(char *cmd, char **env)
+{
+    char **split_cmd;
+    char *cmd_path;
+
+	if (!env || !cmd || cmd[0] == '\0'|| check_white_spaces_cmd(cmd) 
+		|| check_cmd_dot(cmd) == 1)
+	{
+		display_error(cmd, "command not found");
+		exit(127);
+	}
+    split_cmd = split_command(cmd);
+    ft_printf_fd(2, "Split cmd:\n");
+    int i = 0;
+    while (split_cmd[i])
+    {
+        ft_printf_fd(2, "split_cmd[%d] = '%s'\n", i, split_cmd[i]);
+        i++;
+    }
+    if (!split_cmd)
+        handle_error_free(split_cmd, 127);
+    cmd_path = get_executable_path(split_cmd[0], split_cmd, env);
+    if (!cmd_path)
+        handle_error_free(split_cmd, 127);
+    if (execve(cmd_path, split_cmd, env) == -1)
+    {
+        free_split(split_cmd);
+        free(cmd_path);
+        check_exit_error("execve failed");
+    }
+}
+
+cmd + start: adress.
+*pos - start: value.
+
+char cmd[] = "hello world";
+int start = 6;
+char *token_start = cmd + start;  //&cmd[start]
+
+printf("%s\n", token_start);  //"world"
+
+char value = *(cmd + start);
+printf("printf cmd + start: %c\n", value);
+

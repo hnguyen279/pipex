@@ -80,120 +80,19 @@ static char *get_path(char *first_cmd, char **env)
     f_path = find_path(env);
     if (!f_path)
     {
-        display_error("Error", "No such file or directory (PATH not valid)");
+        ft_printf_fd(2, "No such file or directory (PATH not valid)\n");
+        //display_error("Error", "No such file or directory (PATH not valid)");
         exit(127);
     }
     cmd_path = build_cmd_path(first_cmd, f_path);
     if (!cmd_path)
     {
-        display_error(first_cmd, "command not found");
+        ft_printf_fd(2, "%s: command not found\n", first_cmd);
+        //display_error(first_cmd, "command not found");
         return (NULL);
     }
     return (cmd_path);
 }
-
-int skip_unquoted_text(char *cmd, int i)
-{
-    while (cmd[i] && cmd[i] != ' ' &&
-		cmd[i] != '\"' && cmd[i] != '\'')
-    {
-        if (cmd[i] == '\\' && cmd[i + 1] != '\0')
-            i += 2;
-        else
-            i++;
-    }
-    return i;
-}
-
-int skip_quoted_text(char *cmd, int i)
-{
-    char quote = cmd[i];
-    i++; 
-    while (cmd[i] && cmd[i] != quote)
-        i++;
-    if (cmd[i] != quote)
-    {
-        ft_putstr_fd("Missing close quote: ", 2);
-        ft_putstr_fd(&quote, 2);
-        ft_putstr_fd("\n", 2);
-        exit(1);
-    }
-    return i;
-}
-
-static char *extract_token(char *cmd, int len)
-{
-    char *token;
-    int i = 0, j = 0;
-
-    token = (char *)malloc(sizeof(char) * (len + 1));
-    if (!token)
-        return NULL;
-    while (i < len)
-    {
-        if ((cmd[0] == '\"' || cmd[0] == '\'') && cmd[i] == cmd[0])
-            i++;
-        else if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == ' ')
-            i++;
-        else
-        {
-            if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == '\\')
-                i++;
-            token[j++] = cmd[i++];
-        }
-    }
-    token[j] = '\0';
-    return token;
-}
-
-static char *get_token(char *cmd, int *pos)
-{
-    int start = *pos;
-    int tokenLength;
-    char quote;
-
-    while (cmd[*pos] == ' ')
-        (*pos)++;
-    if (cmd[*pos] == '\0') 
-        return NULL;
-    if (cmd[*pos] == '\"' || cmd[*pos] == '\'') 
-    {
-        quote = cmd[*pos];
-        start = (*pos)++;
-        while (cmd[*pos] && cmd[*pos] != quote)
-            (*pos)++;
-        if (cmd[*pos] == quote)
-            (*pos)++; 
-    }
-    else 
-    {
-        start = *pos;
-        *pos = skip_unquoted_text(cmd, *pos);
-    }
-    tokenLength = *pos - start;
-    return extract_token(cmd + start, tokenLength);
-}
-
-static char **split_tokens(char *cmd, char **tokens, int total_tokens)
-{
-    int tokenIndex;
-    int pos;
-
-    tokenIndex = 0;
-    pos = 0;
-    while (tokenIndex < total_tokens)
-    {
-        tokens[tokenIndex] = get_token(cmd, &pos);
-        if (!tokens[tokenIndex])
-        {
-            free_split(tokens);
-            return NULL;
-        }
-        tokenIndex++;
-    }
-    return tokens;
-}
-
 
 
 int check_white_spaces_cmd(char *cmd)
@@ -208,22 +107,205 @@ int check_white_spaces_cmd(char *cmd)
     return 1;
 }
 
+int skip_unquoted_text(char *cmd, int i) // echo hello\\ world; find echo
+{
+    while (cmd[i] && cmd[i] != ' ' &&
+		cmd[i] != '\"' && cmd[i] != '\'')
+    {
+        if (cmd[i] == '\\' && cmd[i + 1] != '\0')
+            i += 2;
+        else
+            i++;
+    }
+    return i;
+}
+
+// int skip_quoted_text(char *cmd, int i)
+// {
+//     char quote = cmd[i];
+//     i++; 
+//     while (cmd[i] && cmd[i] != quote)
+//         i++;
+//     if (cmd[i] != quote)
+//     {
+//         ft_printf_fd(2, "Missing close quote: %c\n", quote);
+//         exit(1);
+//     }
+//     return i;
+// }
+
+int skip_quoted_text(char *cmd, int i) 
+{
+    char quote = cmd[i];
+    i++; 
+    while (cmd[i])
+    {
+        if (cmd[i] == quote)
+            break;
+        i++;
+    }
+    if (cmd[i] == '\0')
+    {
+        ft_printf_fd(2, "Missing close quote: %c\n", quote);
+        exit(1);
+    }
+    return i;
+}
+
+
+// static char *extract_token(char *cmd, int len)
+// {
+//     char *token;
+//     int i;
+//     int j;
+
+//     i = 0;
+//     j = 0;
+//     token = (char *)malloc(sizeof(char) * (len + 1));
+//     if (!token)
+//         return NULL;
+//     while (i < len)
+//     {
+//         if ((cmd[0] == '\"' || cmd[0] == '\'') && cmd[i] == cmd[0])
+//             i++;
+//         else if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == ' ')
+//             i++;
+//         else
+//         {
+//             if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == '\\')
+//                 i++;
+//             token[j++] = cmd[i++];
+//         }
+//     }
+//     token[j] = '\0';
+//     return token;
+// }
+
+static char *extract_token(char *cmd, int len)
+{
+    char *token;
+    int i;
+    int j;
+
+    i = 0;
+    j = 0;
+    token = (char *)malloc(sizeof(char) * (len + 1));
+    if (!token)
+        return NULL;
+    while (i < len)
+    {
+        if ((cmd[0] == '\"' || cmd[0] == '\'') && cmd[i] == cmd[0])
+            i++; 
+        else if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == ' ')
+            i++; 
+        else if (cmd[0] != '\"' && cmd[0] != '\'' && cmd[i] == '\\')
+        {
+            i++; 
+            token[j++] = cmd[i++]; 
+        }
+        else
+            token[j++] = cmd[i++]; 
+    }
+    token[j] = '\0';
+    return token;
+}
+
+static char *get_token(char *cmd, int *pos)
+{
+    int start;
+    char quote;
+    int end;
+
+    while (cmd[*pos] == ' ') 
+        (*pos)++;
+    if (cmd[*pos] == '\0') 
+        return NULL;
+    start = *pos;
+    if (cmd[*pos] == '\"' || cmd[*pos] == '\'') 
+    {
+        quote = cmd[(*pos)++];
+        while (cmd[*pos] && cmd[*pos] != quote)
+            (*pos)++;
+        if (cmd[*pos] == quote)
+            (*pos)++; 
+    }
+    else 
+        *pos = skip_unquoted_text(cmd, *pos);
+    end = *pos;
+    return extract_token(cmd + start, end - start);
+}
+
+
+// static char **split_tokens(char *cmd, char **tokens, int total_tokens)
+// {
+//     int tokenIndex;
+//     int pos;
+
+//     tokenIndex = 0;
+//     pos = 0;
+//     while (tokenIndex < total_tokens)
+//     {
+//         tokens[tokenIndex] = get_token(cmd, &pos);
+//         if (!tokens[tokenIndex])
+//         {
+//             free_split(tokens);
+//             return NULL;
+//         }
+//         tokenIndex++;
+//     }
+//     return tokens;
+// }
+
+// static int count_tokens(char *cmd)
+// {
+//     int tokens = 0;
+//     int i = 0;
+//     while (cmd[i])
+//     {
+//         if (cmd[i] == '\"' || cmd[i] == '\'')
+//         {
+//             tokens++;
+//             i = skip_quoted_text(cmd, i) + 1;
+//         }
+//         else if (cmd[i] != ' ')
+//         {
+//             tokens++;
+//             i = skip_unquoted_text(cmd, i);
+//         }
+//         else
+//             i++;
+//     }
+//     return tokens;
+// }
+
+
+// char **split_command(char *cmd)
+// {
+//     int total_tokens;
+//     char **tokens;
+
+//     total_tokens = count_tokens(cmd);
+//     tokens = (char **)ft_calloc(total_tokens + 1, sizeof(char *));
+//     if (!tokens)
+//         return NULL;
+//     tokens = split_tokens(cmd, tokens, total_tokens);
+//     return tokens;
+// }
 
 static int count_tokens(char *cmd)
 {
     int tokens = 0;
     int i = 0;
+
     while (cmd[i])
     {
-        if (cmd[i] == '\"' || cmd[i] == '\'')
+        if (cmd[i] != ' ')
         {
             tokens++;
-            i = skip_quoted_text(cmd, i) + 1;
-        }
-        else if (cmd[i] != ' ')
-        {
-            tokens++;
-            i = skip_unquoted_text(cmd, i);
+            if (cmd[i] == '\"' || cmd[i] == '\'')
+                i = skip_quoted_text(cmd, i) + 1;
+            else
+                i = skip_unquoted_text(cmd, i);
         }
         else
             i++;
@@ -231,55 +313,49 @@ static int count_tokens(char *cmd)
     return tokens;
 }
 
-
 char **split_command(char *cmd)
 {
     int total_tokens;
     char **tokens;
+    int tokenIndex;
+    int pos;
 
-    // if (!cmd || cmd[0] == '\0'|| check_white_spaces_cmd(cmd))
-	// {
-	// 	display_error(cmd, "command not found");
-	// 	exit(127);
-	// }
+    tokenIndex = 0;
+    pos = 0;
     total_tokens = count_tokens(cmd);
-    tokens = (char **)calloc(total_tokens + 1, sizeof(char *));
+    tokens = (char **)malloc((total_tokens + 1) * sizeof(char *));
     if (!tokens)
         return NULL;
-    tokens = split_tokens(cmd, tokens, total_tokens);
-    return tokens;
+    while (tokenIndex < total_tokens)
+    {
+        tokens[tokenIndex] = get_token(cmd, &pos);
+        if (!tokens[tokenIndex])
+        {
+            free_split(tokens);
+            return (NULL);
+        }
+        tokenIndex++;
+    }
+    tokens[total_tokens] = NULL;
+    return (tokens);
 }
 
-static void check_command_access(char *cmd, char **split_cmd)
-{
-    int fd;
 
-    if (access(cmd, F_OK) == -1)
-    {
-        display_error(cmd, "No such file or directory");
+void handle_error_free(char **split_cmd, int exit_code)
+{   
+    if(split_cmd)
         free_split(split_cmd);
-        exit(127);
-    }
-    if (access(cmd, X_OK) == -1)
-    {
-        display_error(cmd, "Permission denied");
-        free_split(split_cmd);
-        exit(126);
-    }
-    fd = open(cmd, O_DIRECTORY);
-    if (fd != -1)
-    {
-        close(fd);
-        display_error(cmd, "Is a directory");
-        free_split(split_cmd);
-        exit(126);
-    }
+    exit(exit_code);
 }
+
+
 static int check_cmd_dot(char *cmd)
 {
-    int i = 0;
-    int start, end;
+    int i;
+    int start;
+    int end;
     
+    i = 0;
     while (cmd[i])
     {
         if (cmd[i] == '\"' || cmd[i] == '\'') 
@@ -299,12 +375,7 @@ static int check_cmd_dot(char *cmd)
     return (0); 
 }
 
-void handle_error_free(char **split_cmd, int exit_code)
-{   
-    if(split_cmd)
-        free_split(split_cmd);
-    exit(exit_code);
-}
+
 
 // static char *get_executable_path(char *first_cmd, char **split_cmd, char **env)
 // {
@@ -355,7 +426,8 @@ void handle_error_free(char **split_cmd, int exit_code)
 //     return get_path(first_cmd, env);
 // }
 
-static void handle_dot_and_dotdot(char *first_cmd, char **split_cmd, char **env)
+
+static void handle_dot_cmd(char *first_cmd, char **split_cmd, char **env)
 {
     char *check_path;
     char *resolved_path;
@@ -384,6 +456,37 @@ static void handle_dot_and_dotdot(char *first_cmd, char **split_cmd, char **env)
     }
 }
 
+static void check_command_access(char *cmd, char **split_cmd)
+{
+    int fd;
+
+    if (access(cmd, F_OK) == -1)
+    {
+        ft_printf_fd(2, "%s: No such file or directory\n", cmd);
+        handle_error_free(split_cmd, 127);
+        //display_error(cmd, "No such file or directory");
+        // free_split(split_cmd);
+        // exit(127);
+    }
+    if (access(cmd, X_OK) == -1)
+    {
+        ft_printf_fd(2, "%s: Permission denied\n", cmd);
+        handle_error_free(split_cmd, 126);
+        //display_error(cmd, "Permission denied");
+        // free_split(split_cmd);
+        // exit(126);
+    }
+    fd = open(cmd, O_DIRECTORY);
+    if (fd != -1)
+    {
+        close(fd);
+        ft_printf_fd(2, "%s: Is a directory\n", cmd);
+        handle_error_free(split_cmd, 126);
+        //display_error(cmd, "Is a directory");
+        // free_split(split_cmd);
+        // exit(126);
+    }
+}
 
 static char *get_executable_path(char *first_cmd, char **split_cmd, char **env)
 {
@@ -392,7 +495,7 @@ static char *get_executable_path(char *first_cmd, char **split_cmd, char **env)
 		display_error(first_cmd, "command not found");
         handle_error_free(split_cmd, 127);
 	}
-    handle_dot_and_dotdot(first_cmd, split_cmd, env);
+    handle_dot_cmd(first_cmd, split_cmd, env);
     if (ft_strchr(first_cmd, '/'))
     {
         check_command_access(first_cmd, split_cmd);
@@ -408,14 +511,19 @@ void exec_cmd(char *cmd, char **env)
     char **split_cmd;
     char *cmd_path;
 
-	if (!env || !cmd || cmd[0] == '\0'|| check_white_spaces_cmd(cmd) 
-		|| check_cmd_dot(cmd) == 1)
+    if (!env || !cmd)
 	{
-		display_error(cmd, "command not found");
+        ft_printf_fd(2, "command not found\n");
+		exit(127);
+	}
+	if (cmd[0] == '\0'|| check_white_spaces_cmd(cmd) || check_cmd_dot(cmd) == 1)
+	{
+		//display_error(cmd, "command not found");
+        ft_printf_fd(2, "%s: command not found\n", cmd);
 		exit(127);
 	}
     split_cmd = split_command(cmd);
-    if (!split_cmd || !split_cmd[0])
+    if (!split_cmd)
         handle_error_free(split_cmd, 127);
     cmd_path = get_executable_path(split_cmd[0], split_cmd, env);
     if (!cmd_path)
